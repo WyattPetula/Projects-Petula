@@ -9,4 +9,7 @@ public class Constants {
 
     public static final int BALLTRACK_CONVEYOR_SENSOR_PORT = 0;
     public static final int BALLTRACK_CHAMBER_SENSOR_PORT = 1;
+
+    public static final int BALLTRACK_TEST_CONVEYOR_PERCENT_OUTPUT = 1;
+    public static final int BALLTRACK_TEST_CHAMBER_PERCENT_OUTPUT = 1;
 }
