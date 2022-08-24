@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimesliceRobot {
     public Robot() {
-        super(Constants.robotPeriodicAllocation, Constants.controllerPeriod);
+        super(Constants.TimesliceConstants.robotPeriodicAllocation, Constants.TimesliceConstants.controllerPeriod);
     }
     private RobotContainer robotContainer = new RobotContainer();
     

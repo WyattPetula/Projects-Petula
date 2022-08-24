@@ -3,23 +3,39 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTable;
-import frc.robot.Constants;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import frc.robot.Constants.BalltrackConstants;
+import frc.robot.Constants.GlobalConstants;
 
 public class BalltrackSubsystem extends SubsystemBase {
-    private final WPI_TalonSRX conveyorMotor = new WPI_TalonSRX(Constants.BALLTRACK_CONVEYOR_MOTOR_PORT);
-    private final WPI_TalonSRX chamberMotor = new WPI_TalonSRX(Constants.BALLTRACK_CHAMBER_MOTOR_PORT);
+    //Balltrack
+    private final WPI_TalonSRX conveyorMotor = new WPI_TalonSRX(BalltrackConstants.BALLTRACK_CONVEYOR_MOTOR_PORT);
+    private final WPI_TalonSRX chamberMotor = new WPI_TalonSRX(BalltrackConstants.BALLTRACK_CHAMBER_MOTOR_PORT);
+    private final WPI_TalonSRX intakeMotor = new WPI_TalonSRX(BalltrackConstants.BALLTRACK_INTAKE_MOTOR_PORT);
 
-    private final AnalogInput conveyorProximitySensor = new AnalogInput(Constants.BALLTRACK_CONVEYOR_SENSOR_PORT);
-    private final AnalogInput chamberProximitySensor = new AnalogInput(Constants.BALLTRACK_CHAMBER_SENSOR_PORT);
+    private final AnalogInput conveyorProximitySensor = new AnalogInput(BalltrackConstants.BALLTRACK_CONVEYOR_SENSOR_PORT);
+    private final AnalogInput chamberProximitySensor = new AnalogInput(BalltrackConstants.BALLTRACK_CHAMBER_SENSOR_PORT);
 
-    private final double MOTOR_PERCENT_OUTPUT = 1;
-    private final double TEST_CONVEYOR_PERCENT_OUTPUT = Constants.BALLTRACK_TEST_CONVEYOR_PERCENT_OUTPUT;
-    private final double TEST_CHAMBER_PERCENT_OUTPUT = Constants.BALLTRACK_TEST_CHAMBER_PERCENT_OUTPUT;
+    private final double CONVEYOR_MOTOR_PERCENT_OUTPUT = 0.9;
+    private final double CHAMBER_MOTOR_PERCENT_OUTPUT = 1;
+    private final double INTAKE_MOTOR_PERCENT_OUTPUT = 1;
+
+    private final double TEST_CONVEYOR_PERCENT_OUTPUT = BalltrackConstants.BALLTRACK_TEST_CONVEYOR_PERCENT_OUTPUT;
+    private final double TEST_CHAMBER_PERCENT_OUTPUT = BalltrackConstants.BALLTRACK_TEST_CHAMBER_PERCENT_OUTPUT;
+    
     private final double PROXIMITY_SENSOR_THRESHOLD = 50;
+
+    //Intake
+    private final DoubleSolenoid intakeDoubleSolenoid = new DoubleSolenoid(
+        GlobalConstants.PCM_ID, 
+        PneumaticsModuleType.REVPH, 
+        BalltrackConstants.BALLTRACK_INTAKE_SOLENOID_FORWARD_CHANNEL, 
+        BalltrackConstants.BALLTRACK_INTAKE_SOLENOID_REVERSE_CHANNEL);
 
     private String trackStatus = "DISABLED";
 
@@ -52,6 +68,7 @@ public class BalltrackSubsystem extends SubsystemBase {
         ballTrackStatus.setString(trackStatus);
         conveyorSensorStatus.setBoolean(isBallPresentInConveyor());
         chamberSensorStatus.setBoolean(isBallPresentInChamber());
+
         testConveyorPercentOutput.setDouble(TEST_CONVEYOR_PERCENT_OUTPUT);
         testChamberPercentOutput.setDouble(TEST_CHAMBER_PERCENT_OUTPUT);
     }
@@ -68,25 +85,33 @@ public class BalltrackSubsystem extends SubsystemBase {
 	}
 
     public void runBallTrack() {
-        conveyorMotor.set(MOTOR_PERCENT_OUTPUT);
-        chamberMotor.set(MOTOR_PERCENT_OUTPUT);
+        conveyorMotor.set(CONVEYOR_MOTOR_PERCENT_OUTPUT);
+        chamberMotor.set(CHAMBER_MOTOR_PERCENT_OUTPUT);
         trackStatus = "ENABLED";
     }
-
-    public void testRunBallTrack() {
-        conveyorMotor.set(TEST_CONVEYOR_PERCENT_OUTPUT);
-        chamberMotor.set(TEST_CHAMBER_PERCENT_OUTPUT);
-        trackStatus = "ENABLED";
-    }
-
+    
     public void runConveyorOnly() {
         chamberMotor.stopMotor();
-        conveyorMotor.set(MOTOR_PERCENT_OUTPUT);
+        conveyorMotor.set(CONVEYOR_MOTOR_PERCENT_OUTPUT);
+    }
+
+    public void retractIntake() {
+        intakeMotor.stopMotor();
+    }
+    
+    public void runIntake() {
+        intakeMotor.set(INTAKE_MOTOR_PERCENT_OUTPUT);
     }
 
     public void stopBallTrack() {
         conveyorMotor.stopMotor();
         chamberMotor.stopMotor();
         trackStatus = "DISABLED";
+    }
+
+    public void testRunBallTrack() {
+        conveyorMotor.set(TEST_CONVEYOR_PERCENT_OUTPUT);
+        chamberMotor.set(TEST_CHAMBER_PERCENT_OUTPUT);
+        trackStatus = "ENABLED";
     }
 }
