@@ -30,6 +30,9 @@ public class BalltrackSubsystem extends SubsystemBase {
     
     private final double PROXIMITY_SENSOR_THRESHOLD = 50;
 
+    //BalltrackMode is an enum, a special type of variable.
+    private BalltrackMode balltrackMode = BalltrackMode.DISABLED;
+
     //Intake
     private final DoubleSolenoid intakeDoubleSolenoid = new DoubleSolenoid(
         GlobalConstants.PCM_ID, 
@@ -72,7 +75,28 @@ public class BalltrackSubsystem extends SubsystemBase {
         testConveyorPercentOutput.setDouble(TEST_CONVEYOR_PERCENT_OUTPUT);
         testChamberPercentOutput.setDouble(TEST_CHAMBER_PERCENT_OUTPUT);
     }
-    public boolean isBalltackFull() {
+    //Manage how the balltrack will respond in a certain state.
+    public void update() {
+        switch (balltrackMode) {
+            case DISABLED:
+                retractIntake();
+                stopIntakeMotor();
+                stopBallTrack();
+                break;
+            case INTAKE:
+                extendIntake();
+                runIntake();
+                break;
+        }
+    }
+    
+    //Defines all possible states the balltrack can be in.
+    public enum BalltrackMode {
+        DISABLED,
+        INTAKE,
+    }
+
+    public boolean isBalltrackFull() {
         return isBallPresentInConveyor() && isBallPresentInChamber();
     }
 
@@ -84,6 +108,14 @@ public class BalltrackSubsystem extends SubsystemBase {
 		return chamberProximitySensor.getValue() < PROXIMITY_SENSOR_THRESHOLD;
 	}
 
+    public void extendIntake() {
+        
+    }
+
+    public BalltrackMode getBalltrackMode() {
+        return balltrackMode;
+    }
+    
     public void runBallTrack() {
         conveyorMotor.set(CONVEYOR_MOTOR_PERCENT_OUTPUT);
         chamberMotor.set(CHAMBER_MOTOR_PERCENT_OUTPUT);
@@ -96,22 +128,53 @@ public class BalltrackSubsystem extends SubsystemBase {
     }
 
     public void retractIntake() {
-        intakeMotor.stopMotor();
+        
+    }
+
+    public void runIntakeMotor() {
+        intakeMotor.set(INTAKE_MOTOR_PERCENT_OUTPUT);
     }
     
+    //Handle running the intake.
     public void runIntake() {
-        intakeMotor.set(INTAKE_MOTOR_PERCENT_OUTPUT);
+        if (isBalltrackFull()) {
+            stopBallTrack();
+            stopIntakeMotor();
+        } 
+        else if (isBallPresentInChamber()) {
+            runConveyorOnly();
+            stopChamber();
+            runIntakeMotor();
+        } 
+        else {
+            runBallTrack();
+            runIntakeMotor();
+        }
+    }
+
+    public void setBalltrackMode(BalltrackMode balltrackMode) {
+        this.balltrackMode = balltrackMode;
     }
 
     public void stopBallTrack() {
         conveyorMotor.stopMotor();
         chamberMotor.stopMotor();
-        trackStatus = "DISABLED";
+    }
+
+    public void stopConveyor() {
+        conveyorMotor.stopMotor();
+    }
+
+    public void stopChamber() {
+        chamberMotor.stopMotor();
+    }
+
+    public void stopIntakeMotor() {
+        intakeMotor.stopMotor();
     }
 
     public void testRunBallTrack() {
         conveyorMotor.set(TEST_CONVEYOR_PERCENT_OUTPUT);
         chamberMotor.set(TEST_CHAMBER_PERCENT_OUTPUT);
-        trackStatus = "ENABLED";
     }
 }

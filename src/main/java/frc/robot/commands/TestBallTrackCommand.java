@@ -13,7 +13,7 @@ public class TestBallTrackCommand extends CommandBase{
 
     @Override
     public void execute() {
-        if (balltrackSubsystem.isBalltackFull())
+        if (balltrackSubsystem.isBalltrackFull())
             balltrackSubsystem.stopBallTrack();
             
         else if (balltrackSubsystem.isBallPresentInChamber())
