@@ -24,10 +24,10 @@ public class BalltrackSubsystem extends SubsystemBase {
     private final double CONVEYOR_MOTOR_PERCENT_OUTPUT = 0.9;
     private final double CHAMBER_MOTOR_PERCENT_OUTPUT = 1;
     private final double INTAKE_MOTOR_PERCENT_OUTPUT = 1;
-
-    private final double TEST_CONVEYOR_PERCENT_OUTPUT = BalltrackConstants.BALLTRACK_TEST_CONVEYOR_PERCENT_OUTPUT;
-    private final double TEST_CHAMBER_PERCENT_OUTPUT = BalltrackConstants.BALLTRACK_TEST_CHAMBER_PERCENT_OUTPUT;
     
+    public static final int BALLTRACK_INTAKE_SOLENOID_FORWARD_CHANNEL = 0;
+    public static final int BALLTRACK_INTAKE_SOLENOID_REVERSE_CHANNEL = 1;
+
     private final double PROXIMITY_SENSOR_THRESHOLD = 50;
 
     //BalltrackMode is an enum, a special type of variable.
@@ -109,7 +109,7 @@ public class BalltrackSubsystem extends SubsystemBase {
 	}
 
     public void extendIntake() {
-        
+        intakeDoubleSolenoid.set(DoubleSolenoid.Value.kForward);
     }
 
     public BalltrackMode getBalltrackMode() {
@@ -128,7 +128,7 @@ public class BalltrackSubsystem extends SubsystemBase {
     }
 
     public void retractIntake() {
-        
+        intakeDoubleSolenoid.set(DoubleSolenoid.Value.kReverse);
     }
 
     public void runIntakeMotor() {
